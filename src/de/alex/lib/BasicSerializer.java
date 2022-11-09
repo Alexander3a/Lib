@@ -103,5 +103,8 @@ public class BasicSerializer {
     private static void register_serializer(TypeSerializer serializer) {
         BasicSerializer.serializers.put(serializer.getType().getName(), serializer);
     }
+    public static void register_external_serializer(TypeSerializer serializer){
+        BasicSerializer.serializers.put(serializer.getType().getName(),serializer);
+    }
 
 }
