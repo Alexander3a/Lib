@@ -43,8 +43,18 @@ public class BasicSerializer {
     }
 
     public static Object deserialize(String serialized, String class_name) {
+        return deserialize(serialized,class_name,null);
+    }
+    public static Object deserialize_this(String serialized, String class_name,Object old_instance) {
+        return deserialize(serialized,class_name,old_instance);
+    }
+
+    private static Object deserialize(String serialized, String class_name,Object old_instance) {
         try {
-            Object object_obj = Class.forName(class_name).getDeclaredConstructor().newInstance();
+            Object object_obj = old_instance;
+            if(old_instance==null){
+                object_obj= Class.forName(class_name).getDeclaredConstructor().newInstance();
+            }
             HashMap<String, Field> mapped_fields = new HashMap<>();
             for (Field declaredField : object_obj.getClass().getDeclaredFields()) {     //gets all fields in the BasicGameState/Objects class
                 mapped_fields.put(declaredField.getName(), declaredField);
