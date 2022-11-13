@@ -82,7 +82,8 @@ public class BasicSerializer {
             }
             return object_obj;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("failed to deserialize");
+//            e.printStackTrace();
             return null;
         }
 
