@@ -108,7 +108,7 @@ public class BasicSerializer {
     }
 
     protected static TypeSerializer getSerializer(String class_name) {
-        if (BasicSerializer.serializers.isEmpty()) {
+        if (!BasicSerializer.serializers.containsKey("java.lang.String")) {
             //registers all serializers
             BasicSerializer.register_serializer(new StringSerializer());
             BasicSerializer.register_serializer(new ArrayListSerializer());

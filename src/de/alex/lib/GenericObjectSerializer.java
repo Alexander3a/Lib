@@ -58,7 +58,17 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
                     Field field = mapped_fields.get(Entry.getKey());
                     String mixed_value = Entry.getValue();
                     String type = mixed_value.split(":")[0];
-                    String value = mixed_value.split(":")[1];
+                    String value = "";
+                    try {
+                        value = mixed_value.split(":")[1];
+                    }catch (ArrayIndexOutOfBoundsException e){
+                        // most likely just an empty string
+                        //nothing to worry about
+                        if(!mixed_value.equals(type+":")){
+                            throw e;
+
+                        }
+                    }
                     boolean accessible = field.canAccess(object_obj);
                     field.setAccessible(true);
                     try {

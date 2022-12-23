@@ -34,6 +34,7 @@ public class HashMapSerializer extends TypeSerializer {
         HashMap<Object, Object> hashMap = new HashMap<>();
         String[] vars_together = inp.split("\"");
         HashMap<String, String> mapped_vars = new HashMap<>();
+        if(serialized.isBlank())return hashMap;
         for (int i = 0; i < vars_together.length; i += 2) {
             mapped_vars.put(vars_together[i].substring(0, vars_together[i].length() - 1), vars_together[i + 1]);
         }
