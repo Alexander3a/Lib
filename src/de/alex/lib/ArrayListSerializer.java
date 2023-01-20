@@ -1,7 +1,9 @@
 package de.alex.lib;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,31 +19,41 @@ public class ArrayListSerializer extends TypeSerializer {
     protected String serialize(Object object) {
         @SuppressWarnings("unchecked") ArrayList<Object> list = (ArrayList) object;
         StringBuilder builder = new StringBuilder();
-        for (Object o : list) {
-            TypeSerializer typeSerializer = getSerializer(o);
+        for (int i = 0; i < list.size(); i++) {
+            TypeSerializer typeSerializer = getSerializer(list.get(i));
             if (typeSerializer != null) {
-                builder.append(encode(String.valueOf(list.indexOf(o)), typeSerializer.serialize(o), o.getClass().getName()));
+                builder.append(encode(String.valueOf(i), typeSerializer.serialize(list.get(i)), list.get(i).getClass().getName()));
             } else {
                 //TODO make some out debug output logger
-                System.out.println(o.getClass().getName() + " does have a registered Serializer");
+                System.out.println(list.get(i).getClass().getName() + " does have a registered Serializer");
             }
         }
-        return URLEncoder.encode(builder.toString(), StandardCharsets.UTF_8);
+        try {
+            return URLEncoder.encode(builder.toString(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected Object deserialize(String serialized) {
-        String inp = URLDecoder.decode(serialized, StandardCharsets.UTF_8);
+        String inp = null;
+        try {
+            inp = URLDecoder.decode(serialized, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         ArrayList<Object> list = new ArrayList<>();
         String[] vars_together = inp.split("\"");
-        HashMap<String, String> mapped_vars = new HashMap<>();
+        if(serialized.equals(""))return list;
+        HashMap<Integer, String> mapped_vars = new HashMap<>();
         for (int i = 0; i < vars_together.length; i += 2) {
-            mapped_vars.put(vars_together[i].substring(0, vars_together[i].length() - 1), vars_together[i + 1]);
+            mapped_vars.put(Integer.parseInt(vars_together[i].substring(0, vars_together[i].length() - 1)), vars_together[i + 1]);
         }
-        for (Map.Entry<String, String> Entry : mapped_vars.entrySet()) {
+        for (Map.Entry<Integer, String> Entry : mapped_vars.entrySet()) {
             String type = Entry.getValue().split(":")[0];
             String value = Entry.getValue().split(":")[1];
-            list.add(Integer.parseInt(Entry.getKey()), getSerializer(type).deserialize(value));
+            list.add(Entry.getKey(), getSerializerFromType(type).deserialize(value));
         }
         return list;
     }

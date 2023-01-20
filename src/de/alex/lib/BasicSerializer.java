@@ -12,7 +12,6 @@ public class BasicSerializer {
         Field[] field = someObject.getClass().getDeclaredFields();  //gets all fields in the BasicGameState class
         for (Field field1 : field) {
             try {
-                boolean access = field1.canAccess(someObject);
                 field1.setAccessible(true);
                 Object field_object = field1.get(someObject);   //gets the variable from the field
                 TypeSerializer typeSerializer = BasicSerializer.getSerializer(field_object);
@@ -22,7 +21,6 @@ public class BasicSerializer {
                     //TODO make some out debug output logger
                     System.out.println(field1.getName() + " does have a registered Serializer");
                 }
-                field1.setAccessible(access);
             } catch (Exception ignored) {
             }
         }
@@ -55,6 +53,7 @@ public class BasicSerializer {
             if(old_instance==null){
                 object_obj= Class.forName(class_name).getDeclaredConstructor().newInstance();
             }
+            if(serialized.equals(""))return object_obj;
             HashMap<String, Field> mapped_fields = new HashMap<>();
             for (Field declaredField : object_obj.getClass().getDeclaredFields()) {     //gets all fields in the BasicGameState/Objects class
                 mapped_fields.put(declaredField.getName(), declaredField);
@@ -65,29 +64,32 @@ public class BasicSerializer {
                 mapped_vars.put(vars_together[i].substring(0, vars_together[i].length() - 1), vars_together[i + 1]);
             }
             for (Map.Entry<String, String> Entry : mapped_vars.entrySet()) {
-                if (mapped_fields.containsKey(Entry.getKey())) {
-                    Field field = mapped_fields.get(Entry.getKey());
-                    String mixed_value = Entry.getValue();
-                    String type = mixed_value.split(":")[0];
-                    String value = "";
-                    try {
-                        value = mixed_value.split(":")[1];
-                    }catch (ArrayIndexOutOfBoundsException e){
-                        // most likely just an empty string
-                        //nothing to worry about
-                        if(!mixed_value.equals(type+":")){
-                            throw e;
-
+                try {
+                    if (mapped_fields.containsKey(Entry.getKey())) {
+                        Field field = mapped_fields.get(Entry.getKey());
+                        String mixed_value = Entry.getValue();
+                        String type = mixed_value.split(":")[0];
+                        String value = "";
+                        try {
+                            value = mixed_value.split(":")[1];
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            // most likely just an empty string
+                            //nothing to worry about
+                            if (!mixed_value.equals(type + ":")) {
+                                throw e;
+                            }
+                        }
+                        field.setAccessible(true);
+                        try {
+                            field.set(object_obj, BasicSerializer.getSerializer(type).deserialize(value));
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
                         }
                     }
-                    boolean accessible = field.canAccess(object_obj);
-                    field.setAccessible(true);
-                    try {
-                        field.set(object_obj, BasicSerializer.getSerializer(type).deserialize(value));
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                    field.setAccessible(accessible);
+
+                } catch (Exception e) {
+                    System.out.println("failed to deserialize "+Entry.toString());
+                    return null;
                 }
             }
             return object_obj;

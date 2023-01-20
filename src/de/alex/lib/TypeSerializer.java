@@ -11,6 +11,9 @@ public abstract class TypeSerializer {
     protected static <T> TypeSerializer getSerializer(T object) {
         return BasicSerializer.getSerializer(object.getClass().getName());
     }
+    protected static <T> TypeSerializer getSerializerFromType(String type) {
+        return BasicSerializer.getSerializer(type);
+    }
     protected static String encode(String name, String val, String class_name) {
         return name + "=\"" + class_name + ':' + val + '"';
     }

@@ -1,5 +1,6 @@
 package de.alex.lib;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,7 +23,6 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
         Field[] field = object.getClass().getDeclaredFields();  //gets all fields in the BasicGameState class
         for (Field field1 : field) {
             try {
-                boolean access = field1.canAccess(object);
                 field1.setAccessible(true);
                 Object field_object = field1.get(object);   //gets the variable from the field
                 TypeSerializer typeSerializer = getSerializer(field_object);
@@ -32,18 +32,21 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
                     //TODO make some out debug output logger
                     System.out.println(field1.getName() + " does have a registered Serializer");
                 }
-                field1.setAccessible(access);
             } catch (Exception ignored) {
             }
         }
-        return URLEncoder.encode(builder.toString(), StandardCharsets.UTF_8);
+        try {
+            return URLEncoder.encode(builder.toString(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected Object deserialize(String serialized) {
         try {
-            serialized= URLDecoder.decode(serialized,StandardCharsets.UTF_8);
-            Object object_obj = this.getType().getDeclaredConstructor().newInstance();
+            serialized= URLDecoder.decode(serialized,StandardCharsets.UTF_8.name());
+            Object object_obj = getType().getDeclaredConstructor().newInstance();
             HashMap<String, Field> mapped_fields = new HashMap<>();
             for (Field declaredField : object_obj.getClass().getDeclaredFields()) {     //gets all fields in the BasicGameState/Objects class
                 mapped_fields.put(declaredField.getName(), declaredField);
@@ -69,14 +72,12 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
 
                         }
                     }
-                    boolean accessible = field.canAccess(object_obj);
                     field.setAccessible(true);
                     try {
                         field.set(object_obj, deserialize_external(type,value));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
-                    field.setAccessible(accessible);
                 }
             }
             return object_obj;
@@ -89,6 +90,6 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
 
     @Override
     protected Class getType() {
-        return GenericObjectSerializer.class;
+        return aClass;
     }
 }
