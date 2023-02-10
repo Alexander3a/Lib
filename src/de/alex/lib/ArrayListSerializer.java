@@ -9,8 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.alex.lib.BasicSerializer.encode;
-import static de.alex.lib.BasicSerializer.getSerializer;
+import static de.alex.lib.BasicSerializer.*;
 
 
 public class ArrayListSerializer extends TypeSerializer {
@@ -25,7 +24,9 @@ public class ArrayListSerializer extends TypeSerializer {
                 builder.append(encode(String.valueOf(i), typeSerializer.serialize(list.get(i)), list.get(i).getClass().getName()));
             } else {
                 //TODO make some out debug output logger
-                System.out.println(list.get(i).getClass().getName() + " does have a registered Serializer");
+                if(!suppressWarnings){
+                    System.out.println(list.get(i).getClass().getName() + " does have a registered Serializer");
+                }
             }
         }
         try {

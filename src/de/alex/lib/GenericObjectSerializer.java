@@ -30,7 +30,9 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
                     builder.append(encode(field1.getName(), serialize_external(typeSerializer,field_object), field_object.getClass().getName()));
                 } else {
                     //TODO make some out debug output logger
-                    System.out.println(field1.getName() + " does have a registered Serializer");
+                    if(!BasicSerializer.suppressWarnings){
+                        System.out.println(field1.getName() + " does have a registered Serializer");
+                    }
                 }
             } catch (Exception ignored) {
             }

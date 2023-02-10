@@ -23,7 +23,9 @@ public class HashMapSerializer extends TypeSerializer {
                 builder.append(encode(keyTypeSerializer.getType().getName() + ':' + keyTypeSerializer.serialize(Entry.getKey()), valueTypeSerializer.serialize(Entry.getValue()), valueTypeSerializer.getType().getName()));
             } else {
                 //TODO make some out debug output logger
-                System.out.println(Entry.getValue().getClass().getName() + " does have a registered Serializer");
+                if(!BasicSerializer.suppressWarnings){
+                    System.out.println(Entry.getValue().getClass().getName() + " does have a registered Serializer");
+                }
             }
         }
         try {

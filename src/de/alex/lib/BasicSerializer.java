@@ -6,6 +6,7 @@ import java.util.Map;
 
 public class BasicSerializer {
     private final static HashMap<String, TypeSerializer> serializers = new HashMap<>();
+    public static Boolean suppressWarnings=false;
 
     public static String serialize(Object someObject) {
         StringBuilder builder = new StringBuilder();
@@ -19,7 +20,9 @@ public class BasicSerializer {
                     builder.append(BasicSerializer.encode(field1.getName(), typeSerializer.serialize(field_object), field_object.getClass().getName()));
                 } else {
                     //TODO make some out debug output logger
-                    System.out.println(field1.getName() + " does have a registered Serializer");
+                    if(!suppressWarnings){
+                        System.out.println(field1.getName() + " does have a registered Serializer");
+                    }
                 }
             } catch (Exception ignored) {
             }
