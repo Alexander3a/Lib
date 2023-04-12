@@ -80,12 +80,17 @@ public class Basic {
             connection.setAllowUserInteraction(true);
             connection.setDoInput(true);
             connection.setDoOutput(true);
+            connection.setInstanceFollowRedirects(false);
             try(OutputStream os = connection.getOutputStream()) {
                 byte[] input = content.getBytes(StandardCharsets.UTF_8);
                 os.write(input, 0, input.length);
             }
             connection.connect();
             handleCookies(connection);
+            if (connection.getResponseCode() > 300 && connection.getResponseCode() < 307) {
+                final String loc = connection.getHeaderField("Location");
+                return loc;
+            }
             BufferedReader bufferedReader;
             if(connection.getResponseCode()>=200 && connection.getResponseCode() < 300){
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getInputStream()));
