@@ -7,10 +7,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Basic {
+    public static HashMap<String,String> cookieStore = new HashMap<>();
     @SuppressWarnings("HttpUrlsUsage")
     public static String getFromURL(String urlString, ArrayList<String> property) {
+        cookieStore.clear();
         StringBuilder output = new StringBuilder();
         try {
             Boolean https = null;
@@ -33,8 +36,9 @@ public class Basic {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.connect();
+            handleCookies(connection);
             BufferedReader bufferedReader;
-            if(connection.getResponseCode()==200){
+            if(connection.getResponseCode()>=200 && connection.getResponseCode() < 300){
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getInputStream()));
             }else{
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getErrorStream()));
@@ -53,6 +57,7 @@ public class Basic {
     }
     @SuppressWarnings("HttpUrlsUsage")
     public static String postToUrl(String urlString,String content, ArrayList<String> property) {
+        cookieStore.clear();
         StringBuilder output = new StringBuilder();
         try {
             Boolean https = null;
@@ -80,8 +85,9 @@ public class Basic {
                 os.write(input, 0, input.length);
             }
             connection.connect();
+            handleCookies(connection);
             BufferedReader bufferedReader;
-            if(connection.getResponseCode()==200){
+            if(connection.getResponseCode()>=200 && connection.getResponseCode() < 300){
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getInputStream()));
             }else{
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getErrorStream()));
@@ -100,6 +106,7 @@ public class Basic {
     }
     @SuppressWarnings("HttpUrlsUsage")
     public static String getRedirectUrl(String urlString, ArrayList<String> property) {
+        cookieStore.clear();
         try {
             Boolean https = null;
             if(urlString.startsWith("http://"))https=false;
@@ -122,6 +129,7 @@ public class Basic {
             connection.setDoOutput(true);
             connection.setInstanceFollowRedirects(false);
             connection.connect();
+            handleCookies(connection);
             final int stat = connection.getResponseCode();
             if (stat > 300 && stat < 307) {
                 final String loc = connection.getHeaderField("Location");
@@ -133,5 +141,34 @@ public class Basic {
             return null;
         }
         return null;
+    }
+    private static void handleCookies(HttpURLConnection connection){
+        String cookieLine = connection.getHeaderField("set-cookie");
+        for (String s1 : cookieLine.split("; ")) {
+            String[] sp_strings = s1.split("=");
+            cookieStore.put(sp_strings[0],sp_strings[1]);
+        }
+    }
+    public static void buildFromCookieStore(ArrayList<String> parms,HashMap<String,String> cookieStore){
+        if(cookieStore.isEmpty())return;
+        StringBuilder cookieLine = new StringBuilder();
+        cookieStore.forEach((cookieName,cookieValue)->{
+            if(cookieName.startsWith("path")){
+                return;
+            }
+            cookieLine.append(cookieName).append("=").append(cookieValue).append("; ");
+        });
+        parms.add("Cookie: "+ cookieLine.substring(0,cookieLine.length()-2));
+    }
+    public static void buildFromCookieStore(ArrayList<String> parms){
+        if(cookieStore.isEmpty())return;
+        StringBuilder cookieLine = new StringBuilder();
+        cookieStore.forEach((cookieName,cookieValue)->{
+            if(cookieName.startsWith("path")){
+                return;
+            }
+            cookieLine.append(cookieName).append("=").append(cookieValue).append("; ");
+        });
+        parms.add("Cookie: "+ cookieLine.substring(0,cookieLine.length()-2));
     }
 }
