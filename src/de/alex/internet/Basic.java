@@ -8,6 +8,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Basic {
     public static HashMap<String,String> cookieStore = new HashMap<>();
@@ -36,7 +38,8 @@ public class Basic {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.connect();
-            handleCookies(connection);
+            Map<String, List<String>> headerFields = connection.getHeaderFields();
+            handleCookies(headerFields);
             BufferedReader bufferedReader;
             if(connection.getResponseCode()>=200 && connection.getResponseCode() < 300){
                 bufferedReader= new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -86,7 +89,8 @@ public class Basic {
                 os.write(input, 0, input.length);
             }
             connection.connect();
-            handleCookies(connection);
+            Map<String, List<String>> headerFields = connection.getHeaderFields();
+            handleCookies(headerFields);
             if (connection.getResponseCode() > 300 && connection.getResponseCode() < 307) {
                 final String loc = connection.getHeaderField("Location");
                 return loc;
@@ -134,7 +138,8 @@ public class Basic {
             connection.setDoOutput(true);
             connection.setInstanceFollowRedirects(false);
             connection.connect();
-            handleCookies(connection);
+            Map<String, List<String>> headerFields = connection.getHeaderFields();
+            handleCookies(headerFields);
             final int stat = connection.getResponseCode();
             if (stat > 300 && stat < 307) {
                 final String loc = connection.getHeaderField("Location");
@@ -149,6 +154,24 @@ public class Basic {
     }
     private static void handleCookies(HttpURLConnection connection){
         connection.getHeaderFields().forEach((header,value)->{
+            if(header==null)return;
+            if(header.equalsIgnoreCase("set-cookie")){
+                value.forEach(x->{
+                    for (String s1 : x.split("; ")) {
+                        try {
+                            String[] sp_strings = s1.split("=");
+                            if(sp_strings[0].equals("Path"))continue;
+                            if(sp_strings[0].equals("SameSite"))continue;
+                            cookieStore.put(sp_strings[0],sp_strings[1]);
+                        }catch (Exception ignored){
+                        }
+                    }
+                });
+            }
+        });
+    }
+    private static void handleCookies(Map<String, List<String>> headerFields){
+        headerFields.forEach((header,value)->{
             if(header==null)return;
             if(header.equalsIgnoreCase("set-cookie")){
                 value.forEach(x->{
