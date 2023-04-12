@@ -144,9 +144,14 @@ public class Basic {
     }
     private static void handleCookies(HttpURLConnection connection){
         String cookieLine = connection.getHeaderField("set-cookie");
-        for (String s1 : cookieLine.split("; ")) {
-            String[] sp_strings = s1.split("=");
-            cookieStore.put(sp_strings[0],sp_strings[1]);
+        if(cookieLine!=null){
+            for (String s1 : cookieLine.split("; ")) {
+                try {
+                    String[] sp_strings = s1.split("=");
+                    cookieStore.put(sp_strings[0],sp_strings[1]);
+                }catch (Exception ignored){
+                }
+            }
         }
     }
     public static void buildFromCookieStore(ArrayList<String> parms,HashMap<String,String> cookieStore){
