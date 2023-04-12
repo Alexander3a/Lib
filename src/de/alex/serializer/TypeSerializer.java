@@ -1,4 +1,4 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 public abstract class TypeSerializer {
     protected abstract String serialize(Object object);

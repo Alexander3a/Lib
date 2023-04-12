@@ -1,4 +1,4 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -10,8 +10,9 @@ public class BasicSerializer {
 
     public static String serialize(Object someObject) {
         StringBuilder builder = new StringBuilder();
-        Field[] field = someObject.getClass().getDeclaredFields();  //gets all fields in the BasicGameState class
+        Field[] field = someObject.getClass().getDeclaredFields();  //gets all fields in the Supplied class
         for (Field field1 : field) {
+            if(field1.getName().startsWith("__"))continue;
             try {
                 field1.setAccessible(true);
                 Object field_object = field1.get(someObject);   //gets the variable from the field
@@ -98,7 +99,7 @@ public class BasicSerializer {
             return object_obj;
         } catch (Exception e) {
             System.out.println("failed to deserialize");
-//            e.printStackTrace();
+            e.printStackTrace();
             return null;
         }
 
@@ -122,6 +123,7 @@ public class BasicSerializer {
             BasicSerializer.register_serializer(new IntSerializer());
             BasicSerializer.register_serializer(new FloatSerializer());
             BasicSerializer.register_serializer(new LongSerializer());
+            BasicSerializer.register_serializer(new BytesSerializer());
         }
         return BasicSerializer.serializers.getOrDefault(class_name, null);
     }

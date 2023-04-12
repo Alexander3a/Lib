@@ -1,15 +1,15 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public class IntSerializer extends TypeSerializer {
+public class FloatSerializer extends TypeSerializer {
     @Override
     protected String serialize(Object object) {
         try {
-            return URLEncoder.encode(((Integer) object).toString(), StandardCharsets.UTF_8.name());
+            return URLEncoder.encode(object.toString(), StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -18,14 +18,14 @@ public class IntSerializer extends TypeSerializer {
     @Override
     protected Object deserialize(String serialized) {
         try {
-            return Integer.parseInt(URLDecoder.decode(serialized, StandardCharsets.UTF_8.name()));
+            return Float.parseFloat(URLDecoder.decode(serialized, StandardCharsets.UTF_8.name()));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    protected Class<Integer> getType() {
-        return Integer.class;
+    protected Class<Float> getType() {
+        return Float.class;
     }
 }

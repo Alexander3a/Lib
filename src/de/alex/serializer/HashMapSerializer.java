@@ -1,4 +1,4 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -7,8 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.alex.lib.BasicSerializer.encode;
-import static de.alex.lib.BasicSerializer.getSerializer;
+import static de.alex.serializer.BasicSerializer.getSerializer;
 
 public class HashMapSerializer extends TypeSerializer {
     @Override

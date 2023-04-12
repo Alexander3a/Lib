@@ -1,4 +1,4 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;

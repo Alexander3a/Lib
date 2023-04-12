@@ -1,15 +1,14 @@
-package de.alex.lib;
+package de.alex.serializer;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.alex.lib.BasicSerializer.*;
+import static de.alex.serializer.BasicSerializer.*;
 
 
 public class ArrayListSerializer extends TypeSerializer {
@@ -30,7 +29,7 @@ public class ArrayListSerializer extends TypeSerializer {
             }
         }
         try {
-            return URLEncoder.encode(builder.toString(), StandardCharsets.UTF_8.name());
+            return URLEncoder.encode(builder.toString(), String.valueOf(StandardCharsets.UTF_8));
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
