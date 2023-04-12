@@ -143,16 +143,22 @@ public class Basic {
         return null;
     }
     private static void handleCookies(HttpURLConnection connection){
-        String cookieLine = connection.getHeaderField("set-cookie");
-        if(cookieLine!=null){
-            for (String s1 : cookieLine.split("; ")) {
-                try {
-                    String[] sp_strings = s1.split("=");
-                    cookieStore.put(sp_strings[0],sp_strings[1]);
-                }catch (Exception ignored){
-                }
+        connection.getHeaderFields().forEach((header,value)->{
+            if(header==null)return;
+            if(header.equalsIgnoreCase("set-cookie")){
+                value.forEach(x->{
+                    for (String s1 : x.split("; ")) {
+                        try {
+                            String[] sp_strings = s1.split("=");
+                            if(sp_strings[0].equals("Path"))continue;
+                            if(sp_strings[0].equals("SameSite"))continue;
+                            cookieStore.put(sp_strings[0],sp_strings[1]);
+                        }catch (Exception ignored){
+                        }
+                    }
+                });
             }
-        }
+        });
     }
     public static void buildFromCookieStore(ArrayList<String> parms,HashMap<String,String> cookieStore){
         if(cookieStore.isEmpty())return;
