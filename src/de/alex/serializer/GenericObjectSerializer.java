@@ -22,6 +22,7 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
         StringBuilder builder = new StringBuilder();
         Field[] field = object.getClass().getDeclaredFields();  //gets all fields in the BasicGameState class
         for (Field field1 : field) {
+            if(field1.getName().startsWith("__"))continue;
             try {
                 field1.setAccessible(true);
                 Object field_object = field1.get(object);   //gets the variable from the field
