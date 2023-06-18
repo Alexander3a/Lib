@@ -1,5 +1,6 @@
 package de.alex.serializer;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,7 +56,9 @@ public class BasicSerializer {
         try {
             Object object_obj = old_instance;
             if(old_instance==null){
-                object_obj= Class.forName(class_name).getDeclaredConstructor().newInstance();
+                Constructor<?> declaredConstructor = Class.forName(class_name).getDeclaredConstructor();
+                declaredConstructor.setAccessible(true);
+                object_obj=declaredConstructor.newInstance();
             }
             if(serialized.equals(""))return object_obj;
             HashMap<String, Field> mapped_fields = new HashMap<>();

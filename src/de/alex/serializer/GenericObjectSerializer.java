@@ -1,6 +1,7 @@
 package de.alex.serializer;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -49,7 +50,9 @@ public abstract class GenericObjectSerializer extends TypeSerializer {
     protected Object deserialize(String serialized) {
         try {
             serialized= URLDecoder.decode(serialized,StandardCharsets.UTF_8.name());
-            Object object_obj = getType().getDeclaredConstructor().newInstance();
+            Constructor declaredConstructor = getType().getDeclaredConstructor();
+            declaredConstructor.setAccessible(true);
+            Object object_obj = declaredConstructor.newInstance();
             HashMap<String, Field> mapped_fields = new HashMap<>();
             for (Field declaredField : object_obj.getClass().getDeclaredFields()) {     //gets all fields in the BasicGameState/Objects class
                 mapped_fields.put(declaredField.getName(), declaredField);
