@@ -2,6 +2,7 @@ package de.alex.serializer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class BasicSerializer {
         Field[] field = someObject.getClass().getDeclaredFields();  //gets all fields in the Supplied class
         for (Field field1 : field) {
             if(field1.getName().startsWith("__"))continue;
+            if(Modifier.isTransient(field1.getModifiers()))continue;
             try {
                 field1.setAccessible(true);
                 Object field_object = field1.get(someObject);   //gets the variable from the field
