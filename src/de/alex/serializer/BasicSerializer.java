@@ -9,6 +9,7 @@ import java.util.Map;
 public class BasicSerializer {
     private final static HashMap<String, TypeSerializer> serializers = new HashMap<>();
     public static Boolean suppressWarnings=false;
+    public static Boolean experimentalByteSerialization=false;
 
     public static String serialize(Object someObject) {
         StringBuilder builder = new StringBuilder();
