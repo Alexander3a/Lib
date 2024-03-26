@@ -12,6 +12,7 @@ public class Tests {
         Testing testing = new Testing("something");
 //        String serialize = de.alex.serializer.BasicSerializer.serialize(testing);
         byte[] serialize = BasicSerializer.serialize(testing);
+        System.out.println(serialize.length);
         testing.idk=false;
         testing.bytes="a".getBytes(StandardCharsets.UTF_8);
         testing.aLong=1L;

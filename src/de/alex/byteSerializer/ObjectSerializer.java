@@ -15,7 +15,7 @@ public class ObjectSerializer extends TypeSerializer{
 	protected void serialize(Object object,ByteBuffer buffer) {
 		//basic copy of default object serializer
 		int startPosition = buffer.position();
-		buffer.putInt(Integer.MAX_VALUE); //as a placeholder
+		buffer.putShort(Short.MAX_VALUE); //as a placeholder //only place where this being a short might matter
 		de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(object.getClass().getName(),buffer);
 		Field[] field = object.getClass().getDeclaredFields();  //gets all fields in the class
 		for (Field field1 : field) {
@@ -51,7 +51,7 @@ public class ObjectSerializer extends TypeSerializer{
 
 	protected Object deserialize(ByteBuffer buffer,Object old_instance) {
 		int objectStart = buffer.position();
-		int objectSize = buffer.getInt();
+		int objectSize = buffer.getShort();//only place where this being a short might matter
 		int objectEnd = objectSize+objectStart;
 		String objectClassName = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).deserialize(buffer);
 		try {
