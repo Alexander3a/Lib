@@ -2,7 +2,7 @@ package de.alex.byteSerializer;
 
 import java.nio.ByteBuffer;
 
-public class ByteSerializer extends TypeSerializer{
+public class PrimitiveByteSerializer extends TypeSerializer{
 	@Override
 	protected void serialize(Object object, ByteBuffer buffer) {
 		buffer.put((byte) object);
@@ -15,6 +15,6 @@ public class ByteSerializer extends TypeSerializer{
 
 	@Override
 	protected Class getType() {
-		return Byte.class;
+		return byte.class;
 	}
 }

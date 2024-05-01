@@ -2,15 +2,19 @@ package de.alex.byteSerializer;
 
 import de.alex.serializer.BasicSerializer;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 public class ObjectSerializer extends TypeSerializer{
+	Class aClass=Object.class;
+	public ObjectSerializer(Class aClass){
+		this.aClass=aClass;
+	}
+	ObjectSerializer(){
+
+	}
 	@Override
 	protected void serialize(Object object,ByteBuffer buffer) {
 		//basic copy of default object serializer
@@ -27,7 +31,7 @@ public class ObjectSerializer extends TypeSerializer{
 				if(field_object!=null){
 					TypeSerializer serializer = getSerializer(field_object);
 					if (serializer != null) {
-						de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(field_object.getClass().getName(),buffer);
+						de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize(field_object.getClass().getName(),buffer);
 						de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
 						serializer.serialize(field_object,buffer);
 					} else {
@@ -36,7 +40,7 @@ public class ObjectSerializer extends TypeSerializer{
 						}
 					}
 				}else{
-					de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize("",buffer);
+					de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize("",buffer);
 					de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
 				}
 
@@ -65,10 +69,10 @@ public class ObjectSerializer extends TypeSerializer{
 				object_obj=old_instance;
 			}
 			while (buffer.position()<objectEnd){
-				String className = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).deserialize(buffer);
+				String className = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
 				String variableName = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).deserialize(buffer);
 				Object deserialize;
-				if(!className.equals("")){
+				if(!className.isEmpty()){
 					TypeSerializer serializer = de.alex.byteSerializer.BasicSerializer.getSerializer(className);
 					deserialize = serializer.deserialize(buffer);
 				}else{
@@ -93,6 +97,6 @@ public class ObjectSerializer extends TypeSerializer{
 
 	@Override
 	protected Class getType() {
-		return Object.class;
+		return aClass;
 	}
 }
