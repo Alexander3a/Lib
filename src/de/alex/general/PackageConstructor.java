@@ -57,7 +57,7 @@ public class PackageConstructor<T> {
 //            List<Path> collect = Files.walk(FileSystems.getFileSystem(this.getClass().getClassLoader().getResource(pkgName.replaceAll("\\.", "/")).toURI()).getPath(pkgName.replaceAll("\\.", "/"))).collect(Collectors.toList());
             Path root = Paths.get(this.getClass().getClassLoader().getResource("").toURI());
             Path start = Paths.get(this.getClass().getClassLoader().getResource(pkgName.replaceAll("\\.", "/")).toURI());
-            List<Path> collect = Files.walk(start).toList();
+            List<Path> collect = Files.walk(start).collect(Collectors.toList());
             return collect.stream().map(x->root.getParent()!=null ?root.relativize(x): x).map(Path::toString).filter(x -> x.endsWith(".class")).map(x->x.replace(root.getFileSystem().getSeparator(),".").substring(0,x.length()-x.split("\\.")[1].length()-1)).collect(Collectors.toList());
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
