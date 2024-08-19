@@ -145,7 +145,7 @@ public class Basic {
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setInstanceFollowRedirects(false);
-            if(content.isEmpty()){
+            if(!content.isEmpty()){
                 try(OutputStream os = connection.getOutputStream()) {
                     byte[] input = content.getBytes(StandardCharsets.UTF_8);
                     os.write(input, 0, input.length);
