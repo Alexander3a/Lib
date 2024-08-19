@@ -4,13 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Basic {
     public static HashMap<String,String> cookieStore = new HashMap<>();
@@ -124,6 +124,22 @@ public class Basic {
             if(property!=null){
                 property.forEach(x-> connection.setRequestProperty(x.split(":")[0],x.replace(x.split(":")[0]+":","")));
             }
+            Field methods = HttpURLConnection.class.getDeclaredField("methods");
+            //just why?
+            Method[] classMethods = Class.class.getDeclaredMethods();
+            Method declaredFieldMethod = Arrays.stream(classMethods).filter(x -> Objects.equals(x.getName(), "getDeclaredFields0")).findAny().orElseThrow(()->new RuntimeException("java fucking sucks"));
+            declaredFieldMethod.setAccessible(true);
+            Field[] declaredFieldsOfField = (Field[]) declaredFieldMethod.invoke(Field.class, false);
+            Field modifiersField = Arrays.stream(declaredFieldsOfField).filter(x -> Objects.equals(x.getName(), "modifiers")).findAny().orElseThrow(()->new RuntimeException("java fucking sucks"));
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(methods, methods.getModifiers() & ~Modifier.FINAL);
+
+            methods.setAccessible(true);
+            String[] obj = (String[]) methods.get(null);
+            String[] new_obj = new String[obj.length+1];
+            System.arraycopy(obj,0,new_obj,0,obj.length);
+            new_obj[obj.length]=methode;
+            methods.set(null,new_obj);
             connection.setRequestMethod(methode);
             connection.setAllowUserInteraction(true);
             connection.setDoInput(true);
