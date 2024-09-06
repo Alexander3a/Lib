@@ -1,6 +1,5 @@
 package de.alex.byteSerializer;
 
-import de.alex.serializer.BasicSerializer;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,7 +19,7 @@ public class ObjectSerializer extends TypeSerializer{
 		//basic copy of default object serializer
 		int startPosition = buffer.position();
 		buffer.putShort(Short.MAX_VALUE); //as a placeholder //only place where this being a short might matter
-		de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(object.getClass().getName(),buffer);
+		this.getSerializer(String.class.getName()).serialize(object.getClass().getName(),buffer);
 		Field[] field = object.getClass().getDeclaredFields();  //gets all fields in the class
 		for (Field field1 : field) {
 			if(field1.getName().startsWith("__"))continue;
@@ -31,17 +30,17 @@ public class ObjectSerializer extends TypeSerializer{
 				if(field_object!=null){
 					TypeSerializer serializer = getSerializer(field_object);
 					if (serializer != null) {
-						de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize(field_object.getClass().getName(),buffer);
-						de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
+						this.getSerializer(PresetStringSerializer.class.getName()).serialize(field_object.getClass().getName(),buffer);
+						this.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
 						serializer.serialize(field_object,buffer);
 					} else {
-						if(!BasicSerializer.suppressWarnings){
+						if(!basicSerializer.suppressWarnings){
 							System.out.println(field1.getName() + " does have a registered Serializer");
 						}
 					}
 				}else{
-					de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize("",buffer);
-					de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
+					this.getSerializer(PresetStringSerializer.class.getName()).serialize("",buffer);
+					this.getSerializer(String.class.getName()).serialize(field1.getName(),buffer);
 				}
 
 			} catch (Exception ignored) {
@@ -57,7 +56,7 @@ public class ObjectSerializer extends TypeSerializer{
 		int objectStart = buffer.position();
 		int objectSize = buffer.getShort();//only place where this being a short might matter
 		int objectEnd = objectSize+objectStart;
-		String objectClassName = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).deserialize(buffer);
+		String objectClassName = (String) this.getSerializer(String.class.getName()).deserialize(buffer);
 		try {
 			Object object_obj;
 			Class<?> aClass = Class.forName(objectClassName);
@@ -69,11 +68,11 @@ public class ObjectSerializer extends TypeSerializer{
 				object_obj=old_instance;
 			}
 			while (buffer.position()<objectEnd){
-				String className = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
-				String variableName = (String) de.alex.byteSerializer.BasicSerializer.getSerializer(String.class.getName()).deserialize(buffer);
+				String className = (String) this.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
+				String variableName = (String) this.getSerializer(String.class.getName()).deserialize(buffer);
 				Object deserialize;
 				if(!className.isEmpty()){
-					TypeSerializer serializer = de.alex.byteSerializer.BasicSerializer.getSerializer(className);
+					TypeSerializer serializer = this.getSerializerFromType(className);
 					deserialize = serializer.deserialize(buffer);
 				}else{
 					deserialize = null;
@@ -89,6 +88,7 @@ public class ObjectSerializer extends TypeSerializer{
 		}
 		return null;
 	}
+
 	@Override
 	protected Object deserialize(ByteBuffer buffer) {
 		return deserialize(buffer,null);

@@ -11,15 +11,15 @@ public class ArrayListSerializer extends TypeSerializer{
 		ArrayList<Object> list =((ArrayList<Object>) object);
 		for (Object ListEntry : list) {
 			if (ListEntry == null) continue;
-			TypeSerializer valueTypeSerializer = getSerializer(ListEntry);
+			TypeSerializer valueTypeSerializer = this.getSerializer(ListEntry);
 			if (valueTypeSerializer == null) {
-				if (!de.alex.serializer.BasicSerializer.suppressWarnings) {
+				if (!basicSerializer.suppressWarnings) {
 					System.out.println("array value " + ListEntry.getClass().getName() + " does have a registered Serializer");
 				}
-				BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize("", buffer);
+				this.getSerializer(PresetStringSerializer.class.getName()).serialize("", buffer);
 				continue;
 			}
-			BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize(valueTypeSerializer.getType().getName(), buffer);
+			this.getSerializer(PresetStringSerializer.class.getName()).serialize(valueTypeSerializer.getType().getName(), buffer);
 			valueTypeSerializer.serialize(ListEntry, buffer);
 		}
 		Buffer.putSizeIn(startPosition,buffer);
@@ -32,7 +32,7 @@ public class ArrayListSerializer extends TypeSerializer{
 		int objectEnd = objectSize+objectStart;
 		ArrayList<Object> list = new ArrayList<>();
 		while (buffer.position()<objectEnd) {
-			String valueClass = (String) BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
+			String valueClass = (String) this.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
 			if(valueClass.isEmpty()){
 				list.add(null);
 				continue;

@@ -27,9 +27,9 @@ public class Tests {
         testing.bList.add((byte)251);
         testing.tList.add(new Testing("adb"));
         testing.tList.add(new Testing("adb"));
-        BasicSerializer.gzip=true;
-        BasicSerializer.register_external_serializer(new ObjectSerializer(Testing.class));
-        BasicSerializer.register_external_serializer(new TypeSerializer() {
+        BasicSerializer.defaultInstance.gzip=true;
+        BasicSerializer.defaultInstance.register_external_serializer(new ObjectSerializer(Testing.class));
+        BasicSerializer.defaultInstance.register_external_serializer(new TypeSerializer() {
             @Override
             protected void serialize(Object object, ByteBuffer buffer) {
                 Testing.wirdEnum object1 = (Testing.wirdEnum) object;
@@ -48,14 +48,14 @@ public class Tests {
                 return Testing.wirdEnum.class;
             }
         });
-        byte[] serialize = BasicSerializer.serialize(testing);
-        byte[] serializeL = BasicSerializer.serialize(testing.tList);
-        ArrayList<Testing> deserialize1 = (ArrayList<Testing>) BasicSerializer.deserialize(serializeL);
+        byte[] serialize = BasicSerializer.defaultInstance.serialize(testing);
+        byte[] serializeL = BasicSerializer.defaultInstance.serialize(testing.tList);
+        ArrayList<Testing> deserialize1 = (ArrayList<Testing>) BasicSerializer.defaultInstance.deserialize(serializeL);
 
         System.out.println("done");
 //        de.alex.serializer.BasicSerializer.deserialize_this(serialize,testing.getClass().getName(),testing);
 //        BasicSerializer.deserializeThis(serialize,testing);
-        Testing deserialize = (Testing) BasicSerializer.deserialize(serialize);
+        Testing deserialize = (Testing) BasicSerializer.defaultInstance.deserialize(serialize);
 
         System.out.println("done");
 

@@ -36,10 +36,10 @@ public class PresetStringSerializer extends TypeSerializer{
 	}
 	private void createDict(){
 		dict.clear();
-		Set<String> serializerRegisteredNames = BasicSerializer.getSerializerRegisteredNames();
+		Set<String> serializerRegisteredNames = basicSerializer.getSerializerRegisteredNames();
 		List<String> collect = new ArrayList<>(serializerRegisteredNames);
 		collect.add("");
-		collect.addAll(BasicSerializer.dictStrings);
+		collect.addAll(basicSerializer.dictStrings);
 		for (String serializerRegisteredName : collect) {
 			try {
 				MessageDigest complete = MessageDigest.getInstance("MD5");

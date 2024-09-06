@@ -13,13 +13,14 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class BasicSerializer {
-    private final static HashMap<String, TypeSerializer> serializers = new HashMap<>();
-    public static Boolean suppressWarnings=false;
-    public static Boolean gzip=true;
-    public static byte[] serialize(Object someObject) {
+    private final HashMap<String, TypeSerializer> serializers = new HashMap<>();
+    public Boolean suppressWarnings=false;
+    public Boolean gzip=true;
+    public static BasicSerializer defaultInstance = new BasicSerializer();
+    public byte[] serialize(Object someObject) {
         ByteBuffer buffer = ByteBuffer.allocate(Short.MAX_VALUE);
         getSerializer(PresetStringSerializer.class.getName()).serialize(getDefaultSerializerFor(someObject).getType().getName(),buffer);
-        BasicSerializer.getDefaultSerializerFor(someObject).serialize(someObject,buffer);
+        this.getDefaultSerializerFor(someObject).serialize(someObject,buffer);
         if(gzip){
             try {
                 byte[] compressed = new byte[]{};
@@ -46,14 +47,14 @@ public class BasicSerializer {
         }
     }
 
-    public static void deserializeThis(byte[] serialized,Object thisObject){
+    public void deserializeThis(byte[] serialized,Object thisObject){
         deserialize(serialized,thisObject);
     }
-    public static Object deserialize(byte[] serialized) {
+    public Object deserialize(byte[] serialized) {
         return deserialize(serialized,(byte[])null);
     }
 
-    private static Object deserialize(byte[] serialized,Object old_instance) {
+    private Object deserialize(byte[] serialized,Object old_instance) {
         if(gzip){
             try {
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(serialized);
@@ -81,7 +82,7 @@ public class BasicSerializer {
 
         }
         ByteBuffer buffer = ByteBuffer.wrap(serialized);
-        TypeSerializer serializer = BasicSerializer.getSerializer((String) BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer));
+        TypeSerializer serializer = this.getSerializer((String) this.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer));
         if(serializer instanceof ObjectSerializer){
             return ((ObjectSerializer) serializer).deserialize(buffer,old_instance);
         }else {
@@ -93,49 +94,54 @@ public class BasicSerializer {
 
     }
 
-    protected static <T> TypeSerializer getSerializer(T object) {
-        return BasicSerializer.getSerializer(object.getClass().getName());
+    protected <T> TypeSerializer getSerializer(T object) {
+        return this.getSerializer(object.getClass().getName());
     }
 
-    protected static TypeSerializer getSerializer(String class_name) {
-        if (!BasicSerializer.serializers.containsKey("java.lang.String")) {
+    protected TypeSerializer getSerializer(String class_name) {
+        if (!this.serializers.containsKey("java.lang.String")) {
             //registers all serializers
-            BasicSerializer.register_serializer(new StringSerializer());
-            BasicSerializer.register_serializer(new ObjectSerializer());
-            BasicSerializer.register_serializer(new BytesSerializer());
-            BasicSerializer.register_serializer(new LongSerializer());
-            BasicSerializer.register_serializer(new BoolSerializer());
-            BasicSerializer.register_serializer(new HashMapSerializer());
-            BasicSerializer.register_serializer(new PresetStringSerializer());
-            BasicSerializer.register_serializer(new IntSerializer());
-            BasicSerializer.register_serializer(new ArrayListSerializer());
-            BasicSerializer.register_serializer(new ShortSerializer());
-            BasicSerializer.register_serializer(new ByteSerializer());
-            BasicSerializer.register_serializer(new PrimitiveByteSerializer());
+            this.register_serializer(new StringSerializer());
+            this.register_serializer(new ObjectSerializer());
+            this.register_serializer(new BytesSerializer());
+            this.register_serializer(new LongSerializer());
+            this.register_serializer(new BoolSerializer());
+            this.register_serializer(new HashMapSerializer());
+            this.register_serializer(new PresetStringSerializer());
+            this.register_serializer(new IntSerializer());
+            this.register_serializer(new ArrayListSerializer());
+            this.register_serializer(new ShortSerializer());
+            this.register_serializer(new ByteSerializer());
+            this.register_serializer(new PrimitiveByteSerializer());
         }
-        return BasicSerializer.serializers.getOrDefault(class_name, null);
+        return this.serializers.getOrDefault(class_name, null);
     }
-    protected static TypeSerializer getDefaultSerializerFor(Object object){
-        if(object==null)return BasicSerializer.getSerializer(Object.class.getName());
-        TypeSerializer serializer = BasicSerializer.getSerializer(object.getClass().getName());
-        return serializer==null?BasicSerializer.getSerializer(Object.class.getName()):serializer;
-    }
-
-    private static void register_serializer(TypeSerializer serializer) {
-        BasicSerializer.serializers.put(serializer.getType().getName(), serializer);
-    }
-    public static void register_external_serializer(TypeSerializer serializer){
-        BasicSerializer.serializers.put(serializer.getType().getName(),serializer);
-    }
-    protected static Set<String> getSerializerRegisteredNames(){
-        return BasicSerializer.serializers.keySet();
+    protected TypeSerializer getDefaultSerializerFor(Object object){
+        if(object==null)return this.getSerializer(Object.class.getName());
+        TypeSerializer serializer = this.getSerializer(object.getClass().getName());
+        return serializer==null?this.getSerializer(Object.class.getName()):serializer;
     }
 
-    protected static ArrayList<String> dictStrings=new ArrayList<>();
-    public static void clearDictString(){
+    private void register_serializer(TypeSerializer serializer) {
+        serializer.basicSerializer=this;
+        this.serializers.put(serializer.getType().getName(), serializer);
+    }
+    public void register_external_serializer(TypeSerializer serializer){
+        serializer.basicSerializer=this;
+        this.serializers.put(serializer.getType().getName(),serializer);
+    }
+    protected Set<String> getSerializerRegisteredNames(){
+        return this.serializers.keySet();
+    }
+
+    protected ArrayList<String> dictStrings=new ArrayList<>();
+    public void resetSettings(){
         dictStrings.clear();
+        suppressWarnings=false;
+        gzip=true;
+        serializers.clear();
     }
-    public static void addDictString(String string){
+    public void addDictString(String string){
         dictStrings.add(string);
     }
 

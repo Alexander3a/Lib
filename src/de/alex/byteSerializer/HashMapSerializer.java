@@ -14,24 +14,24 @@ public class HashMapSerializer extends TypeSerializer{
 			TypeSerializer valueTypeSerializer = getSerializer(objectObjectEntry.getValue());
 			TypeSerializer keyTypeSerializer = getSerializer(objectObjectEntry.getKey());
 			if(valueTypeSerializer==null){
-				if(!de.alex.serializer.BasicSerializer.suppressWarnings){
+				if(!basicSerializer.suppressWarnings){
 					System.out.println("hashmap value "+objectObjectEntry.getValue().getClass().getName()+" does have a registered Serializer");
 				}
 				continue;
 			}
 			if(keyTypeSerializer==null){
-				if(!de.alex.serializer.BasicSerializer.suppressWarnings){
+				if(!basicSerializer.suppressWarnings){
 					System.out.println("hashmap key "+objectObjectEntry.getKey().getClass().getName()+" does have a registered Serializer");
 				}
 				continue;
 			}
-			BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize(keyTypeSerializer.getType().getName(),buffer);
+			getSerializer(PresetStringSerializer.class.getName()).serialize(keyTypeSerializer.getType().getName(),buffer);
 			keyTypeSerializer.serialize(objectObjectEntry.getKey(),buffer);
 			if (objectObjectEntry.getValue()!=null) {
-				BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize(valueTypeSerializer.getType().getName(),buffer);
+				getSerializer(PresetStringSerializer.class.getName()).serialize(valueTypeSerializer.getType().getName(),buffer);
 				valueTypeSerializer.serialize(objectObjectEntry.getValue(),buffer);
 			}else{
-				BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).serialize("",buffer);
+				getSerializer(PresetStringSerializer.class.getName()).serialize("",buffer);
 			}
 		}
 		Buffer.putSizeIn(startPosition,buffer);
@@ -44,9 +44,9 @@ public class HashMapSerializer extends TypeSerializer{
 		int objectEnd = objectSize+objectStart;
 		HashMap<Object, Object> hashMap = new HashMap<>();
 		while (buffer.position()<objectEnd) {
-			String keyClass = (String) BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
+			String keyClass = (String) getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
 			Object keyDeserialize = getSerializerFromType(keyClass).deserialize(buffer);
-			String valueClass = (String) BasicSerializer.getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
+			String valueClass = (String) getSerializer(PresetStringSerializer.class.getName()).deserialize(buffer);
 			Object valueDeserialize = null;
 			if(valueClass!=null)valueDeserialize = getSerializerFromType(valueClass).deserialize(buffer);
 			hashMap.put(keyDeserialize,valueDeserialize);
