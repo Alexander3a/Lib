@@ -1,6 +1,5 @@
 package de.alex.byteSerializer;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,25 +28,27 @@ public class Tests {
         testing.tList.add(new Testing("adb"));
         BasicSerializer.defaultInstance.gzip=true;
         BasicSerializer.defaultInstance.register_external_serializer(new ObjectSerializer(Testing.class));
-        BasicSerializer.defaultInstance.register_external_serializer(new TypeSerializer() {
-            @Override
-            protected void serialize(Object object, ByteBuffer buffer) {
-                Testing.wirdEnum object1 = (Testing.wirdEnum) object;
-                TypeSerializer serializer = getSerializer(object1.ordinal());
-                serialize_external(serializer,object1.ordinal(),buffer);
-            }
-
-            @Override
-            protected Object deserialize(ByteBuffer buffer) {
-                int o = (int)deserialize_external(getSerializerFromType(Integer.class.getName()), buffer);
-                return Testing.wirdEnum.values()[o];
-            }
-
-            @Override
-            protected Class getType() {
-                return Testing.wirdEnum.class;
-            }
-        });
+//        BasicSerializer.defaultInstance.register_external_serializer(new TypeSerializer() {
+//            @Override
+//            protected void serialize(Object object, ByteBuffer buffer) {
+//                Testing.wirdEnum object1 = (Testing.wirdEnum) object;
+//                TypeSerializer serializer = getSerializer(object1.ordinal());
+//                serialize_external(serializer,object1.ordinal(),buffer);
+//            }
+//
+//            @Override
+//            protected Object deserialize(ByteBuffer buffer) {
+//
+//                int o = (int)deserialize_external(getSerializerFromType(Integer.class.getName()), buffer);
+//                return Testing.wirdEnum.values()[o];
+//            }
+//
+//            @Override
+//            protected Class getType() {
+//                return Testing.wirdEnum.class;
+//            }
+//        });
+        BasicSerializer.defaultInstance.register_external_serializer(new EnumSerializer<>(Testing.wirdEnum.class));
         byte[] serialize = BasicSerializer.defaultInstance.serialize(testing);
         byte[] serializeL = BasicSerializer.defaultInstance.serialize(testing.tList);
         ArrayList<Testing> deserialize1 = (ArrayList<Testing>) BasicSerializer.defaultInstance.deserialize(serializeL);
