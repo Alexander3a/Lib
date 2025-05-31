@@ -19,6 +19,8 @@ public class PresetStringSerializer extends TypeSerializer{
 			}else {
 				System.out.println("[PresetStringSerializer] ["+new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime())+"] "+"unable to serialize unknown string");
 			}
+		}else{
+			throw new RuntimeException("non String passed to serialize");
 		}
 		buffer.putShort(val);
 	}
